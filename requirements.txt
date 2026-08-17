@@ -1,0 +1,7 @@
+PySide6
+psutil
+pyttsx3
+
+openai
+python-dotenv
+httpx
