@@ -1,5 +1,5 @@
 import json
-
+from openai import APIStatusError
 from openai import OpenAI
 
 from core.config import Config
@@ -43,22 +43,31 @@ class OpenRouterProvider(BaseProvider):
         # PRIMEIRA CHAMADA
         # ==========================================
 
-        response = self.client.chat.completions.create(
+        try:
 
-            model=Config.OPENROUTER_MODEL,
+            response = self.client.chat.completions.create(
 
-            messages=chat,
+                model=Config.OPENROUTER_MODEL,
+                messages=chat,
+                tools=tools,
+                tool_choice=(
+                    "auto"
+                    if tools
+                    else None
+                ),
+                max_tokens=500
+            )
 
-            tools=tools,
+        except APIStatusError as error:
 
-            tool_choice=(
-                "auto"
-                if tools
-                else None
-            ),
+            print(f"\n[ERRO API] {error}")
 
-            max_tokens=500
-        )
+            return (
+                "Dr. Marques, não consegui me conectar "
+                "ao modelo de IA no momento. Pode ser "
+                "um problema de créditos ou conexão "
+                "com o OpenRouter."
+            )
 
         # ==========================================
         # VERIFICAÇÃO DE SEGURANÇA
@@ -220,16 +229,24 @@ class OpenRouterProvider(BaseProvider):
         # SEGUNDA CHAMADA
         # ==========================================
 
-        final_response = (
-            self.client.chat.completions.create(
+        try:
+
+            final_response = self.client.chat.completions.create(
 
                 model=Config.OPENROUTER_MODEL,
-
                 messages=chat,
-
                 max_tokens=300
             )
-        )
+
+        except APIStatusError as error:
+
+            print(f"\n[ERRO API] {error}")
+
+            return (
+                "A ação foi executada, Dr. Marques, mas "
+                "não consegui gerar a resposta final "
+                "devido a um erro na API."
+            )
 
         if not final_response.choices:
 
@@ -239,9 +256,13 @@ class OpenRouterProvider(BaseProvider):
                 "a resposta final."
             )
 
+        final_message = final_response.choices[0].message
+
+        print(f"\n[DEBUG FINAL MESSAGE] {final_message}")
+
         return (
-            final_response
-            .choices[0]
-            .message
-            .content
+            final_message.content
+            or "Pronto, Dr. Marques."
         )
+
+    
