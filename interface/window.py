@@ -4,7 +4,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout
 )
-
+from interface.components.command_input import CommandInput
+from core.container import container
 from interface.components.header import Header
 from interface.components.core import Core
 from interface.components.status import Status
@@ -41,15 +42,37 @@ class GideonWindow(QWidget):
 
         logs = Logs()
 
+        command_input = CommandInput()
+
+        command_input.command_submitted.connect(
+            self.handle_command
+        )
+
+        self.logs = logs
+
         center.addWidget(core,3)
         center.addWidget(status,1)
 
         layout.addWidget(header)
         layout.addLayout(center)
+        layout.addWidget(command_input)
         layout.addWidget(logs)
 
         self.setLayout(layout)
 
+    def handle_command(self, text):
+
+        self.logs.log(f"🗣 Você: {text}")
+
+        brain = container.get("brain")
+        speaker = container.get("speaker")
+
+        response = brain.process(text)
+
+        self.logs.log(f"🤖 GIDEON: {response}")
+
+        if speaker:
+            speaker.speak(response)
 
 def start_interface():
 
