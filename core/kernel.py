@@ -1,3 +1,4 @@
+from automation.tool_registry import create_tool_manager
 from core.container import container
 brain = container.get("brain")
 memory = container.get("memory")
@@ -15,14 +16,15 @@ from voice.speaker import Speaker
 class Kernel:
 
     def __init__(self):
-
         self.manager = ModuleManager()
 
     def start(self):
 
         print("[Kernel] Inicializando...")
 
-        brain = Brain()
+        tool_manager = create_tool_manager()
+
+        brain = Brain(tool_manager=tool_manager)
         memory = Memory()
         speaker = Speaker()
 

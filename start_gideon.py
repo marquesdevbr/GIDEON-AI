@@ -1,3 +1,9 @@
+import sys
+
+sys.stdout.reconfigure(encoding="utf-8")
+sys.stderr.reconfigure(encoding="utf-8")
+
+from automation.tool_registry import create_tool_manager
 from brain.brain import Brain
 from voice.listener import Listener
 from voice.speaker import Speaker
@@ -5,23 +11,13 @@ from voice.speaker import Speaker
 
 def main():
 
-    print(
-        "=== GIDEON SYSTEM ==="
-    )
-
-    # ==============================
-    # INICIALIZAR SISTEMA DE VOZ
-    # ==============================
+    print("=== GIDEON SYSTEM ===")
 
     listener = Listener()
-
-    # ==============================
-    # INICIALIZAR CÉREBRO
-    # ==============================
-    
     speaker = Speaker()
 
-    brain = Brain()
+    tool_manager = create_tool_manager()
+    brain = Brain(tool_manager=tool_manager)
 
     brain.initialize()
 
