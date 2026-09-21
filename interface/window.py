@@ -4,6 +4,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout
 )
+from PySide6.QtCore import QThread, Signal
+
 from interface.components.command_input import CommandInput
 from core.container import container
 from interface.components.header import Header
@@ -12,6 +14,23 @@ from interface.components.status import Status
 from interface.components.logs import Logs
 
 from core.kernel import Kernel
+
+
+class BrainWorker(QThread):
+
+    finished_processing = Signal(str)
+
+    def __init__(self, text):
+        super().__init__()
+        self.text = text
+
+    def run(self):
+
+        brain = container.get("brain")
+
+        response = brain.process(self.text)
+
+        self.finished_processing.emit(response)
 
 
 class GideonWindow(QWidget):
@@ -48,7 +67,9 @@ class GideonWindow(QWidget):
             self.handle_command
         )
 
+        self.command_input = command_input
         self.logs = logs
+        self.worker = None
 
         center.addWidget(core,3)
         center.addWidget(status,1)
@@ -64,15 +85,27 @@ class GideonWindow(QWidget):
 
         self.logs.log(f"🗣 Você: {text}")
 
-        brain = container.get("brain")
-        speaker = container.get("speaker")
+        self.command_input.setEnabled(False)
 
-        response = brain.process(text)
+        self.worker = BrainWorker(text)
+
+        self.worker.finished_processing.connect(
+            self.handle_response
+        )
+
+        self.worker.start()
+
+    def handle_response(self, response):
 
         self.logs.log(f"🤖 GIDEON: {response}")
 
+        speaker = container.get("speaker")
+
         if speaker:
             speaker.speak(response)
+
+        self.command_input.setEnabled(True)
+
 
 def start_interface():
 
