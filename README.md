@@ -29,15 +29,19 @@ A implementação, código e desenvolvimento deste projeto são independentes.
 
 Entre os recursos atualmente implementados ou em desenvolvimento estão:
 
-- 🧠 Integração com modelos de inteligência artificial
-- 🖥️ Automação de tarefas no computador
+- 🧠 Integração com modelos de inteligência artificial via OpenRouter (tool calling funcional)
+- 🖥️ Automação de tarefas no computador (abrir programas instalados)
 - 🌐 Abertura de websites
 - 📂 Criação e manipulação de arquivos e pastas
 - 🗑️ Exclusão de arquivos com sistema de confirmação
 - 🔧 Sistema modular de ferramentas
-- 🔊 Recursos de voz
+- 🔊 Recursos de voz: reconhecimento de fala com detecção de silêncio, síntese de voz via ElevenLabs
+- 🎙️ Ativação por palavra-chave ("GIDEON") no modo terminal, com reconhecimento aproximado (fuzzy matching)
+- 🖼️ Interface gráfica com PySide6, incluindo entrada de comando por texto conectada à IA
+- ⚡ Processamento assíncrono (threading) para manter a interface responsiva durante o processamento da IA
 - 💾 Sistema de memória
 - 🔐 Sistema de confirmação para ações que exigem maior segurança
+- 🛡️ Tratamento de erros de API para evitar que falhas de conexão/créditos derrubem a aplicação
 - 🧩 Arquitetura preparada para expansão através de módulos
 
 > A GIDEON continua em desenvolvimento e novas funcionalidades serão adicionadas ao longo do projeto.
@@ -163,11 +167,18 @@ A aplicação será inicializada através do arquivo principal.
 * [x] Criação de arquivos e pastas
 * [x] Sistema de confirmação de ações
 * [x] Recursos iniciais de voz
+* [x] Tool calling funcionando de ponta a ponta (voz e texto)
+* [x] Tratamento de erros de API sem derrubar a aplicação
+* [x] Interface gráfica com entrada de comando por texto
+* [x] Processamento assíncrono na interface gráfica (sem congelamento)
+* [x] Ativação por palavra-chave ("GIDEON") no modo terminal
 
 ### 🚧 Em desenvolvimento
 
 * [ ] Aprimorar sistema de memória
-* [ ] Evoluir interface gráfica
+* [ ] Adicionar entrada por voz na interface gráfica
+* [ ] Adicionar ativação por palavra-chave também na interface gráfica
+* [ ] Saudação automática ao abrir a interface gráfica
 * [ ] Expandir sistema de visão
 * [ ] Desenvolver novos módulos
 * [ ] Melhorar interação por voz
