@@ -1,3 +1,38 @@
+import difflib
+
+WAKE_WORD_VARIANTS = [
+    "gideon",
+    "guidao",
+    "guidão",
+    "guido",
+    "gedeao",
+    "gideao",
+    "lirio",
+    "miriam"
+]
+
+def extract_command_after_wake_word(text):
+
+    words = text.lower().split()
+
+    if not words:
+        return None
+
+    first_word = words[0]
+
+    match = difflib.get_close_matches(
+        first_word,
+        WAKE_WORD_VARIANTS,
+        n=1,
+        cutoff=0.6
+    )
+
+    if not match:
+        return None
+
+    return " ".join(words[1:]).strip()
+
+
 import sys
 
 sys.stdout.reconfigure(encoding="utf-8")
@@ -53,6 +88,25 @@ def main():
 
         if not text:
             continue
+
+        command = extract_command_after_wake_word(text)
+
+        if command is None:
+
+            print(
+                "[GIDEON] Palavra de ativação "
+                "não detectada, ignorando."
+            )
+
+            continue
+
+        if not command:
+
+            speaker.speak("Sim, Dr. Marques?")
+
+            continue
+
+        text = command
 
         # ==============================
         # COMANDO PARA ENCERRAR
