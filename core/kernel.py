@@ -11,6 +11,7 @@ from core.event_bus import event_bus
 from brain.brain import Brain
 from memory.memory import Memory
 from voice.speaker import Speaker
+from voice.listener import Listener
 
 
 class Kernel:
@@ -27,6 +28,7 @@ class Kernel:
         brain = Brain(tool_manager=tool_manager)
         memory = Memory()
         speaker = Speaker()
+        listener = Listener()
 
         self.manager.register(brain)
         self.manager.register(memory)
@@ -35,6 +37,7 @@ class Kernel:
         container.register("brain", brain)
         container.register("memory", memory)
         container.register("speaker", speaker)
+        container.register("listener", listener)
 
         state_manager.set_state(State.ONLINE)
 

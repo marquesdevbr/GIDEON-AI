@@ -6,6 +6,8 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import QThread, Signal
 
+import keyboard
+
 from interface.components.command_input import CommandInput
 from core.container import container
 from interface.components.header import Header
@@ -14,6 +16,9 @@ from interface.components.status import Status
 from interface.components.logs import Logs
 
 from core.kernel import Kernel
+
+
+HOTKEY = "f9"
 
 
 class BrainWorker(QThread):
@@ -31,6 +36,33 @@ class BrainWorker(QThread):
         response = brain.process(self.text)
 
         self.finished_processing.emit(response)
+
+
+class ListenerWorker(QThread):
+
+    finished_listening = Signal(str)
+
+    def run(self):
+
+        listener = container.get("listener")
+
+        text = listener.listen()
+
+        self.finished_listening.emit(text or "")
+
+
+class HotkeyWorker(QThread):
+
+    hotkey_pressed = Signal()
+
+    def run(self):
+
+        keyboard.add_hotkey(
+            HOTKEY,
+            lambda: self.hotkey_pressed.emit()
+        )
+
+        keyboard.wait()
 
 
 class GideonWindow(QWidget):
@@ -67,9 +99,14 @@ class GideonWindow(QWidget):
             self.handle_command
         )
 
+        command_input.mic_clicked.connect(
+            self.start_listening
+        )
+
         self.command_input = command_input
         self.logs = logs
-        self.worker = None
+        self.brain_worker = None
+        self.listener_worker = None
 
         center.addWidget(core,3)
         center.addWidget(status,1)
@@ -81,19 +118,60 @@ class GideonWindow(QWidget):
 
         self.setLayout(layout)
 
+        self.hotkey_worker = HotkeyWorker()
+
+        self.hotkey_worker.hotkey_pressed.connect(
+            self.start_listening
+        )
+
+        self.hotkey_worker.start()
+
+        self.logs.log(
+            f"⌨ Atalho global ativo: {HOTKEY.upper()}"
+        )
+
+    def start_listening(self):
+
+        if not self.command_input.mic_button.isEnabled():
+            return
+
+        self.logs.log("🎤 Ouvindo...")
+
+        self.command_input.set_busy(True)
+
+        self.listener_worker = ListenerWorker()
+
+        self.listener_worker.finished_listening.connect(
+            self.handle_listened_text
+        )
+
+        self.listener_worker.start()
+
+    def handle_listened_text(self, text):
+
+        if not text:
+
+            self.logs.log("🎤 Não entendi, tente novamente.")
+
+            self.command_input.set_busy(False)
+
+            return
+
+        self.handle_command(text)
+
     def handle_command(self, text):
 
         self.logs.log(f"🗣 Você: {text}")
 
-        self.command_input.setEnabled(False)
+        self.command_input.set_busy(True)
 
-        self.worker = BrainWorker(text)
+        self.brain_worker = BrainWorker(text)
 
-        self.worker.finished_processing.connect(
+        self.brain_worker.finished_processing.connect(
             self.handle_response
         )
 
-        self.worker.start()
+        self.brain_worker.start()
 
     def handle_response(self, response):
 
@@ -104,7 +182,7 @@ class GideonWindow(QWidget):
         if speaker:
             speaker.speak(response)
 
-        self.command_input.setEnabled(True)
+        self.command_input.set_busy(False)
 
 
 def start_interface():

@@ -5,3 +5,5 @@ pyttsx3
 openai
 python-dotenv
 httpx
+
+keyboard
