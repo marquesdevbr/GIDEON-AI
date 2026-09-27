@@ -21,33 +21,44 @@ class CommandInput(QWidget):
 
         self.input_field.setStyleSheet("""
             QLineEdit{
-                background:#10151C;
-                color:white;
-                border:1px solid #00E5FF;
-                border-radius:6px;
-                padding:8px;
+                background:#12161F;
+                color:#E8ECF1;
+                border:1px solid #1E2430;
+                border-radius:8px;
+                padding:10px 14px;
+                font-family:'Inter','Segoe UI',sans-serif;
                 font-size:14px;
+            }
+            QLineEdit:focus{
+                border:1px solid #00E5FF;
             }
         """)
 
         self.send_button.setStyleSheet("""
             QPushButton{
                 background:#00E5FF;
-                color:#05070A;
-                border-radius:6px;
-                padding:8px 16px;
-                font-weight:bold;
+                color:#0A0E14;
+                border-radius:8px;
+                padding:10px 20px;
+                font-family:'Inter','Segoe UI',sans-serif;
+                font-weight:600;
+            }
+            QPushButton:hover{
+                background:#33EBFF;
             }
         """)
 
         self.mic_button.setStyleSheet("""
             QPushButton{
-                background:#10151C;
-                color:#00E5FF;
-                border:1px solid #00E5FF;
-                border-radius:6px;
-                padding:8px 12px;
+                background:#12161F;
+                color:#7B61FF;
+                border:1px solid #7B61FF;
+                border-radius:8px;
+                padding:10px 14px;
                 font-size:16px;
+            }
+            QPushButton:hover{
+                background:#1A1230;
             }
         """)
 

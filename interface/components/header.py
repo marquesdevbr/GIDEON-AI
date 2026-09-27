@@ -10,36 +10,42 @@ class Header(QWidget):
 
         self.title = QLabel("GIDEON")
 
-        self.status = QLabel("🟢 ONLINE")
+        self.status = QLabel("● ONLINE")
 
         self.clock = QLabel()
 
         self.title.setStyleSheet("""
             color:#00E5FF;
-            font-size:28px;
-            font-weight:bold;
+            font-family:'Rajdhani','Segoe UI',sans-serif;
+            font-size:26px;
+            font-weight:700;
+            letter-spacing:4px;
         """)
 
         self.status.setStyleSheet("""
-            color:#00FF7F;
-            font-size:18px;
+            color:#3DDC97;
+            font-family:'Inter','Segoe UI',sans-serif;
+            font-size:14px;
         """)
 
         self.clock.setStyleSheet("""
-            color:white;
-            font-size:18px;
+            color:#6B7684;
+            font-family:'Inter','Segoe UI',sans-serif;
+            font-size:14px;
+        """)
+
+        self.setStyleSheet("""
+            background:#12161F;
+            border-bottom:1px solid #1E2430;
         """)
 
         layout = QHBoxLayout()
+        layout.setContentsMargins(20, 14, 20, 14)
 
         layout.addWidget(self.title)
-
         layout.addStretch()
-
         layout.addWidget(self.status)
-
-        layout.addSpacing(30)
-
+        layout.addSpacing(24)
         layout.addWidget(self.clock)
 
         self.setLayout(layout)

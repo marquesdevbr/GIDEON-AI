@@ -78,14 +78,18 @@ class GideonWindow(QWidget):
         self.resize(1200,700)
 
         self.setStyleSheet("""
-            background:#05070A;
+            background:#0A0E14;
         """)
 
         layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(16)
 
         header = Header()
 
         center = QHBoxLayout()
+        center.setContentsMargins(20, 0, 20, 0)
+        center.setSpacing(16)
 
         core = Core()
 
@@ -103,6 +107,7 @@ class GideonWindow(QWidget):
             self.start_listening
         )
 
+        self.core = core
         self.command_input = command_input
         self.logs = logs
         self.brain_worker = None
@@ -111,10 +116,16 @@ class GideonWindow(QWidget):
         center.addWidget(core,3)
         center.addWidget(status,1)
 
+        content_margin_layout = QVBoxLayout()
+        content_margin_layout.setContentsMargins(20, 0, 20, 20)
+        content_margin_layout.setSpacing(16)
+
+        content_margin_layout.addWidget(command_input)
+        content_margin_layout.addWidget(logs)
+
         layout.addWidget(header)
         layout.addLayout(center)
-        layout.addWidget(command_input)
-        layout.addWidget(logs)
+        layout.addLayout(content_margin_layout)
 
         self.setLayout(layout)
 
@@ -126,13 +137,13 @@ class GideonWindow(QWidget):
 
         self.hotkey_worker.start()
 
-        self.logs.log(
-            f"⌨ Atalho global ativo: {HOTKEY.upper()}"
+        self.logs.log_system(
+            f"Atalho global ativo: {HOTKEY.upper()}"
         )
 
         greeting = "Olá, Dr. Marques. Como você está hoje?"
 
-        self.logs.log(f"🤖 GIDEON: {greeting}")
+        self.logs.log_gideon(greeting)
 
         speaker = container.get("speaker")
 
@@ -144,7 +155,9 @@ class GideonWindow(QWidget):
         if not self.command_input.mic_button.isEnabled():
             return
 
-        self.logs.log("🎤 Ouvindo...")
+        self.core.set_state("listening")
+
+        self.logs.log_system("Ouvindo...")
 
         self.command_input.set_busy(True)
 
@@ -160,9 +173,11 @@ class GideonWindow(QWidget):
 
         if not text:
 
-            self.logs.log("🎤 Não entendi, tente novamente.")
+            self.logs.log_system("Não entendi, tente novamente.")
 
             self.command_input.set_busy(False)
+
+            self.core.set_state("idle")
 
             return
 
@@ -170,7 +185,9 @@ class GideonWindow(QWidget):
 
     def handle_command(self, text):
 
-        self.logs.log(f"🗣 Você: {text}")
+        self.logs.log_user(text)
+
+        self.core.set_state("thinking")
 
         self.command_input.set_busy(True)
 
@@ -184,12 +201,16 @@ class GideonWindow(QWidget):
 
     def handle_response(self, response):
 
-        self.logs.log(f"🤖 GIDEON: {response}")
+        self.logs.log_gideon(response)
+
+        self.core.set_state("speaking")
 
         speaker = container.get("speaker")
 
         if speaker:
             speaker.speak(response)
+
+        self.core.set_state("idle")
 
         self.command_input.set_busy(False)
 

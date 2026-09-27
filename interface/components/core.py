@@ -4,6 +4,21 @@ from PySide6.QtCore import Qt, QTimer
 import math
 
 
+STATE_COLORS = {
+    "idle": QColor("#00E5FF"),
+    "listening": QColor("#7B61FF"),
+    "thinking": QColor("#FFB020"),
+    "speaking": QColor("#00E5FF"),
+}
+
+STATE_SPEEDS = {
+    "idle": 1.0,
+    "listening": 1.8,
+    "thinking": 2.4,
+    "speaking": 1.6,
+}
+
+
 class Core(QWidget):
 
     def __init__(self):
@@ -15,14 +30,26 @@ class Core(QWidget):
         self.angle2 = 0
         self.frame = 0
 
+        self.state = "idle"
+
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.animate)
         self.timer.start(16)  # 60 FPS
 
+    def set_state(self, state):
+
+        if state not in STATE_COLORS:
+            state = "idle"
+
+        self.state = state
+
     def animate(self):
-        self.angle1 += 2
-        self.angle2 -= 3
-        self.frame += 0.08
+
+        speed = STATE_SPEEDS.get(self.state, 1.0)
+
+        self.angle1 += 2 * speed
+        self.angle2 -= 3 * speed
+        self.frame += 0.08 * speed
 
         self.update()
 
@@ -34,12 +61,20 @@ class Core(QWidget):
         cx = self.width() / 2
         cy = self.height() / 2
 
+        color = STATE_COLORS.get(
+            self.state,
+            STATE_COLORS["idle"]
+        )
+
         pulse = math.sin(self.frame) * 5
         radius = 60 + pulse
 
         # Brilho
+        glow = QColor(color)
+        glow.setAlpha(40)
+
         p.setPen(Qt.PenStyle.NoPen)
-        p.setBrush(QColor(0, 229, 255, 40))
+        p.setBrush(glow)
         p.drawEllipse(
             int(cx-95),
             int(cy-95),
@@ -48,7 +83,7 @@ class Core(QWidget):
         )
 
         # Núcleo
-        p.setBrush(QColor("#00E5FF"))
+        p.setBrush(color)
         p.drawEllipse(
             int(cx-radius),
             int(cy-radius),
@@ -56,7 +91,7 @@ class Core(QWidget):
             int(radius*2)
         )
 
-        pen = QPen(QColor("#00E5FF"))
+        pen = QPen(color)
         pen.setWidth(4)
 
         p.setBrush(Qt.BrushStyle.NoBrush)
@@ -68,7 +103,7 @@ class Core(QWidget):
             int(cy-90),
             180,
             180,
-            self.angle1*16,
+            int(self.angle1*16),
             120*16
         )
 
@@ -78,13 +113,13 @@ class Core(QWidget):
             int(cy-115),
             230,
             230,
-            self.angle2*16,
+            int(self.angle2*16),
             100*16
         )
 
         # Pontos orbitando
         p.setPen(Qt.PenStyle.NoPen)
-        p.setBrush(QColor("#00E5FF"))
+        p.setBrush(color)
 
         for i in range(6):
 
