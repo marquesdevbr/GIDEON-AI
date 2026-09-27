@@ -130,6 +130,15 @@ class GideonWindow(QWidget):
             f"⌨ Atalho global ativo: {HOTKEY.upper()}"
         )
 
+        greeting = "Olá, Dr. Marques. Como você está hoje?"
+
+        self.logs.log(f"🤖 GIDEON: {greeting}")
+
+        speaker = container.get("speaker")
+
+        if speaker:
+            speaker.speak(greeting)
+
     def start_listening(self):
 
         if not self.command_input.mic_button.isEnabled():

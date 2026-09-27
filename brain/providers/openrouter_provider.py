@@ -100,7 +100,11 @@ class OpenRouterProvider(BaseProvider):
 
         if not message.tool_calls:
 
-            return message.content
+            return (
+                message.content.strip()
+                if message.content
+                else message.content
+            )
 
         # ==========================================
         # ADICIONAR MENSAGEM DO MODELO
@@ -261,8 +265,9 @@ class OpenRouterProvider(BaseProvider):
         print(f"\n[DEBUG FINAL MESSAGE] {final_message}")
 
         return (
-            final_message.content
-            or "Pronto, Dr. Marques."
+            final_message.content.strip()
+            if final_message.content
+            else "Pronto, Dr. Marques."
         )
 
     
